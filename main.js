@@ -1,4 +1,6 @@
 const fs = require("fs");
+const prompt = require('prompt-sync')();
+
 
 function formatDollar(n) {
     const dollars = Math.floor(n / 100);
@@ -39,6 +41,10 @@ class PartitionedAcct {
         this.updateBalance();
     }
 
+    printBalance() {
+        console.log(formatDollar(self.balance))
+    }
+
     toString() {
         let result = `Total Balance: ${formatDollar(this.balance).padStart(10)}\n\n`;
         result += `Bucket                   Amount   %\n`;
@@ -65,8 +71,7 @@ class PartitionedAcct {
 }
 
 
-
-const incomingAmt = 5000; // $50.00
+// const incomingAmt = 5000; // $50.00
 
 // const buckets = [
 //     new Bucket('travel', 30),
@@ -78,10 +83,33 @@ const incomingAmt = 5000; // $50.00
 
 // // const myAcct = new PartitionedAcct(buckets);
 
-const myAcct = PartitionedAcct.loadFromFile("acct.json");
+
+const id = prompt('Welcome to Bucketdrop! What is your account ID? ');
+console.log(`Loading account #${id}...\n`);
+
+const myAcct = PartitionedAcct.loadFromFile(`accounts/acct${id}.json`);
 console.log(myAcct.toString());
-myAcct.deposit(incomingAmt);
-console.log(myAcct.toString());
-myAcct.saveToFile("acct.json");
+
+console.log("Calling API...")
+const balance = myAcct.balance + Math.floor(Math.random() * (10000 + 1)); // API Placeholder
+const balanceDelta = balance - myAcct.balance
+
+console.log(`Your current balance is ${formatDollar(balance)}`)
+if (balanceDelta > 0) {
+    console.log(`Your balance is up ${formatDollar(balanceDelta)}!`)
+    myAcct.deposit(balanceDelta);
+} else if (balanceDelta < 0) {
+    console.log("Withdrawal functionality not yet added")
+}
 
 
+console.log(myAcct.toString());
+myAcct.saveToFile(`accounts/acct${id}.json`);
+
+// COMMAND handler
+// MAKE new account
+// MODIFY bucket spread
+//  // ADD or REMOVE bucket
+//  // CHANGE spread
+// TRANSFER bucket balances
+// WITHDRAWAL from bucket
