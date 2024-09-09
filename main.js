@@ -87,19 +87,26 @@ class PartitionedAcct {
 const id = prompt('Welcome to Bucketdrop! What is your account ID? ');
 console.log(`Loading account #${id}...\n`);
 
-const myAcct = PartitionedAcct.loadFromFile(`accounts/acct${id}.json`);
+var myAcct = null;
+try {
+    myAcct = PartitionedAcct.loadFromFile(`accounts/acct${id}.json`);
+} catch (error) {
+    console.log("Account does not exist!");
+    return;
+}
+
 console.log(myAcct.toString());
 
-console.log("Calling API...")
+console.log("Calling API...");
 const balance = myAcct.balance + Math.floor(Math.random() * (10000 + 1)); // API Placeholder
-const balanceDelta = balance - myAcct.balance
+const balanceDelta = balance - myAcct.balance;
 
 console.log(`Your current balance is ${formatDollar(balance)}`)
 if (balanceDelta > 0) {
-    console.log(`Your balance is up ${formatDollar(balanceDelta)}!`)
+    console.log(`Your balance is up ${formatDollar(balanceDelta)}!`);
     myAcct.deposit(balanceDelta);
 } else if (balanceDelta < 0) {
-    console.log("Withdrawal functionality not yet added")
+    console.log("Withdrawal functionality not yet added");
 }
 
 
