@@ -1,5 +1,6 @@
 const fs = require("fs");
 const prompt = require('prompt-sync')();
+const ControlPanel = require("./control");
 
 
 function formatDollar(n) {
@@ -70,20 +71,6 @@ class PartitionedAcct {
     }
 }
 
-
-// const incomingAmt = 5000; // $50.00
-
-// const buckets = [
-//     new Bucket('travel', 30),
-//     new Bucket('emergency', 40),
-//     new Bucket('scuba', 10),
-//     new Bucket('subscriptions', 10),
-//     new Bucket('misc', 10)
-// ];
-
-// // const myAcct = new PartitionedAcct(buckets);
-
-
 const id = prompt('Welcome to Bucketdrop! What is your account ID? ');
 console.log(`Loading account #${id}...\n`);
 
@@ -110,7 +97,11 @@ if (balanceDelta > 0) {
 }
 
 
-console.log(myAcct.toString());
+// console.log(myAcct.toString());
+
+terminal = new ControlPanel(myAcct);
+terminal.run();
+
 myAcct.saveToFile(`accounts/acct${id}.json`);
 
 // COMMAND handler
