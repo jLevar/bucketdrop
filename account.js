@@ -19,7 +19,7 @@ class Bucket {
 }
 
 class PartitionedAcct {
-    constructor(buckets = [new Bucket("Default", 100, 0)]) {
+    constructor(buckets = [new Bucket("default", 100, 0)]) {
         this.buckets = buckets
         this.updateBalance();
     }
@@ -51,6 +51,10 @@ class PartitionedAcct {
     }
 
     addBucket(bucketName, bucketPercentage, bucketAmount) {
+        if (this.buckets.findIndex(bucket => bucket.name === bucketName)) {
+            console.log("Error! Duplicate Name!");
+            return false;
+        }
         this.buckets.push(new Bucket(bucketName, bucketPercentage, bucketAmount));
         if (!this.validateSpread()) {
             this.buckets.pop();
@@ -68,6 +72,15 @@ class PartitionedAcct {
         this.buckets[0].amount += this.buckets[bucketIndex].amount;
         this.buckets[0].percent = this.buckets[bucketIndex].percent;
         this.buckets.splice(bucketIndex, 1);
+        return true;
+    }
+
+    transferFunds(bucketFrom, bucketTo, amount) {
+        let indexFrom = this.buckets.findIndex(bucket => bucket.name === bucketFrom);
+        let indexTo = this.buckets.findIndex(bucket => bucket.name === bucketTo);
+        if (indexFrom == -1 || indexTo == -1 || this.buckets[indexFrom].balance < amount) return false;
+        this.buckets[indexFrom].amount -= amount;
+        this.buckets[indexTo].amount += amount;
         return true;
     }
 

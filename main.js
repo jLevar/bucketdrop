@@ -35,6 +35,7 @@ class ControlPanel {
         console.log("m - Make Account");
         console.log("a - Add Bucket")
         console.log("r - Remove Bucket")
+        console.log("t - Transfer Funds")
         console.log("c - Call API");
         console.log("q - Save and Quit\n");
     }
@@ -71,6 +72,18 @@ class ControlPanel {
         
     }
 
+    transferFunds() {
+        let bucketFrom = prompt("Transfering From (Bucket Name): ").toLowerCase();
+        let bucketTo = prompt("To: ").toLowerCase();
+        let amount = parseInt(prompt("Amount? ")) * 100;
+        if(this.account.transferFunds(bucketFrom, bucketTo, amount)) {
+            console.log("Transfer Successful!")
+        } else {
+            console.log("Transfer Unsuccessful!")
+        }
+        
+    }
+
     callAPI() {
         api(this.account);
     }
@@ -94,6 +107,9 @@ class ControlPanel {
                     break;
                 case 'r':
                     this.removeBucket();
+                    break;
+                case 't':
+                    this.transferFunds();
                     break;
                 case 'c':
                     this.callAPI();
