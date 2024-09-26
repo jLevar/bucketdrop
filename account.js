@@ -19,9 +19,9 @@ class Bucket {
 }
 
 class PartitionedAcct {
-    constructor(buckets = [], balance = 0) {
-        this.buckets = buckets;
-        this.balance = balance;
+    constructor(buckets = []) {
+        this.buckets = [new Bucket("Default", 100, 0)].concat(buckets);
+        this.updateBalance();
     }
 
     updateBalance() {
@@ -29,7 +29,18 @@ class PartitionedAcct {
     }
 
     validateSpread() {
-        return this.buckets.reduce((total, bucket) => total + bucket.percent, 0) === 100;
+        let total = this.buckets.reduce((total, bucket) => total + bucket.percent, 0);
+        console.log(total)
+        if (total == 100) {
+            return true;
+        }
+        else if (total > 100) {
+            let currDefault = this.buckets[0].percent;  // Minimizes the Default Partition
+            this.buckets[0].percent = currDefault - total + 100;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     deposit(amountIn) {
@@ -37,6 +48,16 @@ class PartitionedAcct {
             bucket.amount += Math.floor(amountIn * bucket.percent / 100);
         }
         this.updateBalance();
+    }
+
+    addBucket(bucketName, bucketPercentage, bucketAmount) {
+        this.buckets.push(new Bucket(bucketName, bucketPercentage, bucketAmount));
+        if (!this.validateSpread()) {
+            this.buckets.pop();
+            console.log("Invalid Bucket Spread!")
+            return false;
+        }
+        return true;
     }
 
     printBalance() {
@@ -65,7 +86,7 @@ class PartitionedAcct {
         const data = fs.readFileSync(filename, 'utf8');
         const parsedData = JSON.parse(data);
         const buckets = parsedData.buckets.map(b => new Bucket(b.name, b.percent, b.amount));
-        return new PartitionedAcct(buckets, parsedData.balance);
+        return new PartitionedAcct(buckets);
     }
 }
 

@@ -8,7 +8,7 @@ class ControlPanel {
     }
 
     setAccount() {
-        this.id = prompt('Welcome to Bucketdrop! What is your account ID? ');
+        this.id = prompt('What is your account ID? ');
         console.log(`Loading account #${this.id}...\n`);
 
         try {
@@ -16,7 +16,15 @@ class ControlPanel {
             return true;
         } catch (error) {
             console.log("Account does not exist!");
-            return false;
+            let inputOption = prompt("Would you like to make one with this id? [y/n/q]: ");
+            switch (inputOption.toLowerCase()) {
+                case 'y':
+                    return this.makeAcct();
+                case 'q':
+                    return false;
+                default:
+                    return this.setAccount();
+            }
         }
     }
 
@@ -34,7 +42,16 @@ class ControlPanel {
     }
 
     makeAcct() {
-        console.log("YOU AINT DONE THIS YET!")
+        this.account = new PartitionedAcct();
+        while(true) {
+            let userChoice = prompt("Create another bucket? [y/n]: ");
+            if (userChoice.toLowerCase() != "y") break;
+            let bucketName = prompt("Bucket Name? ");
+            let bucketPercentage = parseInt(prompt("Bucket's Percentage of Account? (0, 100)"));
+            let bucketBalance = parseInt(prompt("Pre-existing Balance?"));
+            this.account.addBucket(bucketName, bucketPercentage, bucketBalance);
+        } 
+        return true;
     }
 
     callAPI() {
@@ -42,12 +59,12 @@ class ControlPanel {
     }
 
     run() {
+        console.log("Welcome to Bucketdrop!")
         if (!this.setAccount()) return;
         this.printAcct();
         this.printMenu();
-        let inputOption;
         while (true) {
-            inputOption = prompt("Enter an option: ");
+            let inputOption = prompt("Enter an option: ");
             switch (inputOption.toLowerCase()) {
                 case 'p':
                     this.printAcct();
