@@ -58,30 +58,40 @@ class ControlPanel {
     addBucket() {
         let bucketName = prompt("Bucket Name? ");
         let bucketPercentage = parseInt(prompt("Bucket's Percentage of Account? (0, 100) "));
-        this.account.addBucket(bucketName.toLowerCase(), bucketPercentage, 0);
+        try {
+            this.account.addBucket(bucketName.toLowerCase(), bucketPercentage, 0);
+            console.log("Bucket added successfully!")
+        } catch (error) {
+            console.log(`${error}`)
+        }
     }
 
     removeBucket() {
         let bucketName = prompt("Name of Bucket You'd Like to Remove? ");
-        if (prompt("Are you sure you want to delete this bucket? [y/n] ").toLowerCase() != 'y') return;
-        if (this.account.removeBucket(bucketName.toLowerCase())) {
-            console.log("Bucket Removed Successfully!")    
-        } else {
-            console.log("Bucket Removal Unsuccessful!")
+        if (prompt("Are you sure you want to delete this bucket? [y/n] ").toLowerCase() != 'y') {
+            console.log("Remove Process Aborted!");
+            return;
+        } 
+
+        try {
+            this.account.removeBucket(bucketName.toLowerCase())   
+            console.log("Bucket Removed Successfully!"); 
+        } catch (error) {
+            console.log(`${error}`);
         }
-        
     }
 
     transferFunds() {
         let bucketFrom = prompt("Transfering From (Bucket Name): ").toLowerCase();
         let bucketTo = prompt("To: ").toLowerCase();
-        let amount = parseInt(prompt("Amount? ")) * 100;
-        if(this.account.transferFunds(bucketFrom, bucketTo, amount)) {
+        let amount = parseFloat(prompt("Amount? ")) * 100;
+
+        try {
+            this.account.transferFunds(bucketFrom, bucketTo, amount)
             console.log("Transfer Successful!")
-        } else {
-            console.log("Transfer Unsuccessful!")
+        } catch (error) {
+            console.log(`${error}`)
         }
-        
     }
 
     callAPI() {

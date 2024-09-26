@@ -28,18 +28,19 @@ class PartitionedAcct {
         this.balance = this.buckets.reduce((total, bucket) => total + bucket.amount, 0);
     }
 
+    // Not very nice or readable code
     validateSpread() {
         let total = this.buckets.reduce((total, bucket) => total + bucket.percent, 0);
         if (total == 100) {
-            return true;
+            return;
         }
         else if (total > 100) {
-            let currDefault = this.buckets[0].percent;  // Minimizes the Default Partition
-            if (currDefault - total + 100 < 0) return false; 
+            let currDefault = this.buckets[0].percent; 
+            if (currDefault - total + 100 < 0) throw new Error("Sum of Nondefault Bucket Percentages Greater Than 100") 
             this.buckets[0].percent = currDefault - total + 100;
-            return true;
+            return;
         } else {
-            return false;
+            throw new Error("Invalid Bucket Spread")
         }
     }
 
@@ -50,38 +51,42 @@ class PartitionedAcct {
         this.updateBalance();
     }
 
-    addBucket(bucketName, bucketPercentage, bucketAmount) {
-        if (this.buckets.findIndex(bucket => bucket.name === bucketName)) {
-            console.log("Error! Duplicate Name!");
-            return false;
+    addBucket(bucketName, bucketPercentage) {
+        if (this.buckets.findIndex(bucket => bucket.name === bucketName) != -1) throw new Error("Duplicate Name!");
+        if (bucketPercentage <= 0) throw new Error("Percentage must be positive!")
+
+        this.buckets.push(new Bucket(bucketName, bucketPercentage, 0));
+
+        try {
+            this.validateSpread();
+        } catch (error) {
+            this.buckets.pop();  
+            throw error;  
         }
-        this.buckets.push(new Bucket(bucketName, bucketPercentage, bucketAmount));
-        if (!this.validateSpread()) {
-            this.buckets.pop();
-            console.log("Invalid Bucket Spread!")
-            return false;
-        }
-        return true;
     }
 
     removeBucket(bucketName) {
+        if (bucketName == "default") throw new Error('Cannot delete default bucket');
+
         let bucketIndex = this.buckets.findIndex(bucket => bucket.name === bucketName)
-        if (bucketIndex == -1) return false;
+        if (bucketIndex == -1) throw new Error(`Bucket with name ${bucketName} not found`);
 
         // Move all of the bucket's data to the default bucket before removing it
         this.buckets[0].amount += this.buckets[bucketIndex].amount;
         this.buckets[0].percent = this.buckets[bucketIndex].percent;
         this.buckets.splice(bucketIndex, 1);
-        return true;
     }
 
     transferFunds(bucketFrom, bucketTo, amount) {
         let indexFrom = this.buckets.findIndex(bucket => bucket.name === bucketFrom);
         let indexTo = this.buckets.findIndex(bucket => bucket.name === bucketTo);
-        if (indexFrom == -1 || indexTo == -1 || this.buckets[indexFrom].balance < amount) return false;
+
+        if (indexFrom == -1) throw new Error(`Cannot find bucket ${bucketFrom}`);
+        if (indexTo == -1) throw new Error(`Cannot find bucket ${bucketTo}`);
+        if (this.buckets[indexFrom].amount < amount) throw new Error("Insufficient Funds");
+
         this.buckets[indexFrom].amount -= amount;
         this.buckets[indexTo].amount += amount;
-        return true;
     }
 
     printBalance() {
@@ -131,7 +136,5 @@ function api(account) {
 module.exports = { PartitionedAcct, Bucket, api };
 
 // MODIFY bucket spread
-//  // ADD or REMOVE bucket
 //  // CHANGE spread
-// TRANSFER bucket balances
 // WITHDRAWAL from bucket
