@@ -33,7 +33,9 @@ class ControlPanel {
         console.log("Menu:");
         console.log("p - Print Account");
         console.log("m - Make Account");
-        console.log("a - Call API");
+        console.log("a - Add Bucket")
+        console.log("r - Remove Bucket")
+        console.log("c - Call API");
         console.log("q - Save and Quit\n");
     }
 
@@ -43,15 +45,30 @@ class ControlPanel {
 
     makeAcct() {
         this.account = new PartitionedAcct();
+        this.addBucket()
         while(true) {
             let userChoice = prompt("Create another bucket? [y/n]: ");
             if (userChoice.toLowerCase() != "y") break;
-            let bucketName = prompt("Bucket Name? ");
-            let bucketPercentage = parseInt(prompt("Bucket's Percentage of Account? (0, 100)"));
-            let bucketBalance = parseInt(prompt("Pre-existing Balance?"));
-            this.account.addBucket(bucketName, bucketPercentage, bucketBalance);
+            this.addBucket()
         } 
         return true;
+    }
+
+    addBucket() {
+        let bucketName = prompt("Bucket Name? ");
+        let bucketPercentage = parseInt(prompt("Bucket's Percentage of Account? (0, 100) "));
+        this.account.addBucket(bucketName.toLowerCase(), bucketPercentage, 0);
+    }
+
+    removeBucket() {
+        let bucketName = prompt("Name of Bucket You'd Like to Remove? ");
+        if (prompt("Are you sure you want to delete this bucket? [y/n] ").toLowerCase() != 'y') return;
+        if (this.account.removeBucket(bucketName.toLowerCase())) {
+            console.log("Bucket Removed Successfully!")    
+        } else {
+            console.log("Bucket Removal Unsuccessful!")
+        }
+        
     }
 
     callAPI() {
@@ -73,6 +90,12 @@ class ControlPanel {
                     this.makeAcct();
                     break;
                 case 'a':
+                    this.addBucket();
+                    break;
+                case 'r':
+                    this.removeBucket();
+                    break;
+                case 'c':
                     this.callAPI();
                     break;
                 case 'q':

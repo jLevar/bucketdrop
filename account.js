@@ -19,8 +19,8 @@ class Bucket {
 }
 
 class PartitionedAcct {
-    constructor(buckets = []) {
-        this.buckets = [new Bucket("Default", 100, 0)].concat(buckets);
+    constructor(buckets = [new Bucket("Default", 100, 0)]) {
+        this.buckets = buckets
         this.updateBalance();
     }
 
@@ -30,12 +30,12 @@ class PartitionedAcct {
 
     validateSpread() {
         let total = this.buckets.reduce((total, bucket) => total + bucket.percent, 0);
-        console.log(total)
         if (total == 100) {
             return true;
         }
         else if (total > 100) {
             let currDefault = this.buckets[0].percent;  // Minimizes the Default Partition
+            if (currDefault - total + 100 < 0) return false; 
             this.buckets[0].percent = currDefault - total + 100;
             return true;
         } else {
@@ -57,6 +57,17 @@ class PartitionedAcct {
             console.log("Invalid Bucket Spread!")
             return false;
         }
+        return true;
+    }
+
+    removeBucket(bucketName) {
+        let bucketIndex = this.buckets.findIndex(bucket => bucket.name === bucketName)
+        if (bucketIndex == -1) return false;
+
+        // Move all of the bucket's data to the default bucket before removing it
+        this.buckets[0].amount += this.buckets[bucketIndex].amount;
+        this.buckets[0].percent = this.buckets[bucketIndex].percent;
+        this.buckets.splice(bucketIndex, 1);
         return true;
     }
 
@@ -106,8 +117,6 @@ function api(account) {
 
 module.exports = { PartitionedAcct, Bucket, api };
 
-// COMMAND handler
-// MAKE new account
 // MODIFY bucket spread
 //  // ADD or REMOVE bucket
 //  // CHANGE spread
